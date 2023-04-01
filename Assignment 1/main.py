@@ -341,6 +341,19 @@ def cpu_player_hard(board, player):
     return sorted_indicies[0]
 
 
+def print_options():
+    print("===============     huy6 ===============")
+    print("Welcome to Connect 4!")
+    print("1. View Rules")
+    print("2. Play a local 2 player game")
+    print("3. Play a game against the computer")
+    print("4. Exit")
+    print("=========================================")
+
+
+def game_against_cpu():
+
+
 def get_distance_from_target(num, target):
     return abs(target - num)
 
