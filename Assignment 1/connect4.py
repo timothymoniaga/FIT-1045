@@ -135,39 +135,47 @@ def end_of_game(board):
 	:return: 0 if game is not over, 1 if player 1 wins, 2 if player 2 wins, 3 if draw.
 	"""
 	# Implement your solution below
-	empty = 0
-	# Check for horizontal wins
-	for c in range(len(board[0]) - 3):  # not possible to win in the last 3 compile
-		for r in range(len(board)):
-			if board[r][c] != empty and board[r][c] == board[r][c + 1] and board[r][c] == board[r][c + 2] and board[r][
-				c] == board[r][c + 3]:
-				return board[r][c]
+	def end_of_game(board):  # Question 6
+		"""
+		Checks if the game has ended with a winner
+		or a draw.
 
-	# Check for vertical wins
-	for r in range(len(board) - 3):
-		for c in range(len(board[0])):
-			if board[r][c] != empty and board[r][c] == board[r + 1][c] and board[r][c] == board[r + 2][c] and board[r][
-				c] == board[r + 3][c]:
-				return board[r][c]
+		:param board: The game board, 2D list of 6 rows x 7 columns.
+		:return: 0 if game is not over, 1 if player 1 wins, 2 if player 2 wins, 3 if draw.
+		"""
+		# Implement your solution below
 
-	# Check for backwards \ diagonal wins
-	for r in range(len(board) - 3):
-		for c in range(3, len(board[0])):
-			if board[r][c] != empty and board[r][c] == board[r + 1][c - 1] and board[r][c] == board[r + 2][c - 2] and \
-					board[r][c] == board[r + 3][c - 3]:
-				return board[r][c]
+		# replace 4 with the input number to win  :)
 
-	# Check for foward / diagonal wins
-	for r in range(len(board) - 3):
-		for c in range(len(board[0]) - 3):
-			if board[r][c] != empty and board[r][c] == board[r + 1][c + 1] and board[r][c] == board[r + 2][c + 2] and \
-					board[r][c] == board[r + 3][c + 3]:
-				return board[r][c]
+		empty = 0
+		# Check for horizontal wins
+		for c in range(len(board[0]) - 3):  # not possible to win in the last 3 compile
+			for r in range(len(board)):
+				if board[r][c] != empty and all(board[r][c + i] == board[r][c] for i in range(4)):
+					return board[r][c]
 
-	if 0 not in board[0]:
-		return 3
+		# Check for vertical wins
+		for r in range(len(board) - 3):
+			for c in range(len(board[0])):
+				if board[r][c] != empty and all(board[r + i][c] == board[r][c] for i in range(4)):
+					return board[r][c]
 
-	return 0
+		# Check for backwards \ diagonal wins
+		for r in range(len(board) - 3):
+			for c in range(3, len(board[0])):
+				if board[r][c] != empty and all(board[r + i][c - i] == board[r][c] for i in range(4)):
+					return board[r][c]
+
+		# Check for foward / diagonal wins
+		for r in range(len(board) - 3):
+			for c in range(len(board[0]) - 3):
+				if board[r][c] != empty and all(board[r + i][c + i] == board[r][c] for i in range(4)):
+					return board[r][c]
+
+		if 0 not in board[0]:
+			return 3
+
+		return 0
 
 
 def local_2_player_game():
