@@ -316,29 +316,15 @@ def cpu_player_hard(board, player):
 
     # temp_board = copy.deepcopy(board)
 
-    best_move = None
-    max_count = 0
-    for i in range(len(temp_board[0])):
-        if drop_piece(temp_board, player, i):
-            row = get_row(temp_board, i)
-            count = count_connected(temp_board, row, i, player)
-            if count > max_count:
-                best_move = i
-                max_count = count
-            remove_piece(temp_board, i)
-
-    if best_move is not None:
-        drop_piece(board, player, best_move)
-        return best_move
-
     indices = [i + 1 for i, element in enumerate(board[0]) if element == 0]
     sorted_indicies = sorted(
         indices, key=lambda x: get_distance_from_target(x, target=(ceil(len(board[0])/2))))
-    # rand_num = random.choice(indices)
+    best_columns = indices[:(len(board[0])//2)]
+    rand_num = random.choice(best_columns)
     print(sorted_indicies)
-    drop_piece(board, player, sorted_indicies[0])
+    drop_piece(board, player, rand_num)
     # print_board(board)
-    return sorted_indicies[0]
+    return rand_num
 
 
 def print_options():

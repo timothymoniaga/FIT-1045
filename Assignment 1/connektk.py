@@ -83,7 +83,7 @@ def create_board(columns, rows):
     return [[0 for _ in range(columns)] for _ in range(rows)]
 
 
-def print_board(board):
+def print_board(board, num_players):
     """
     Prints the game board to the console.
 
@@ -91,21 +91,31 @@ def print_board(board):
     :return: None
     """
     # Implement your solution below
-    print("========== Connect4 =========")
-    print("Player 1: X       Player 2: O\n")
-    print("  1   2   3   4   5   6   7")
-    print(" --- --- --- --- --- --- ---")
+
+    tokens = [" ", "X", "O", "!", "@", "#", "$", "%", "^", "&", "*", "+", "~"]
+    seperator = ""
+    numbers = ""
+    legend = ""
+    for _ in range(len(board[0])):
+        seperator += " ---"
+    
+    for i in range(len(board)):
+        numbers += "  " + str(i + 1) + " "
+
+    for i in range(1, num_players + 1):
+        legend += "P" + str(i) + ": " + tokens[i] + "  "
+
+
+    print("========== Connectk =========")
+    print(legend + "\n")
+    print(numbers)
+    print(seperator)
     for i in range(len(board)):
         row = "|"
         for n in range(len(board[i])):
-            if board[i][n] == 0:
-                row += "   |"
-            elif board[i][n] == 1:
-                row += " X |"
-            elif board[i][n] == 2:
-                row += " O |"
+            row += " " + tokens[board[i][n]] + " |"
         print(row)
-        print(" --- --- --- --- --- --- ---")
+        print(seperator)
     print("=============================")
 
 
@@ -131,7 +141,7 @@ def drop_piece(board, player, column):
     return False
 
 
-def execute_player_turn(player, board):
+def execute_player_turn(player, board, columns):
     """
     Prompts user for a legal move given the current game board
     and executes the move.
@@ -139,18 +149,22 @@ def execute_player_turn(player, board):
     :return: Column that the piece was dropped into, int.
     """
     # Implement your solution below
+    valid_inputs = []
+    for i in range(1, columns + 1):
+        valid_inputs.append(str(i))
+
     while True:
         column = validate_input(
             "Player " +
             str(player) + ", please enter the column you would like to drop your piece into: ",
-            ["1", "2", "3", "4", "5", "6", "7"])
+            valid_inputs)
         if (drop_piece(board, player, column)):
             return int(column)
         else:
             print("That column is full, please try again.")
 
 
-def end_of_game(board):
+def end_of_game(board, k):
     """
     Checks if the game has ended with a winner
     or a draw.
@@ -162,63 +176,33 @@ def end_of_game(board):
     empty = 0
     # Check for horizontal wins
     # not possible to win in the last 3 compile
-    for c in range(len(board[0]) - 3):
+    for c in range(len(board[0]) - (k - 1)):
         for r in range(len(board)):
-            if board[r][c] != empty and all(board[r][c + i] == board[r][c] for i in range(4)):
+            if board[r][c] != empty and all(board[r][c + i] == board[r][c] for i in range(k)):
                 return board[r][c]
 
     # Check for vertical wins
-    for r in range(len(board) - 3):
+    for r in range(len(board) - (k - 1)):
         for c in range(len(board[0])):
-            if board[r][c] != empty and all(board[r + i][c] == board[r][c] for i in range(4)):
+            if board[r][c] != empty and all(board[r + i][c] == board[r][c] for i in range(k)):
                 return board[r][c]
 
     # Check for backwards \ diagonal wins
-    for r in range(len(board) - 3):
-        for c in range(3, len(board[0])):
-            if board[r][c] != empty and all(board[r + i][c - i] == board[r][c] for i in range(4)):
+    for r in range(len(board) - (k - 1)):
+        for c in range((k - 1), len(board[0])):
+            if board[r][c] != empty and all(board[r + i][c - i] == board[r][c] for i in range(k)):
                 return board[r][c]
 
     # Check for foward / diagonal wins
-    for r in range(len(board) - 3):
-        for c in range(len(board[0]) - 3):
-            if board[r][c] != empty and all(board[r + i][c + i] == board[r][c] for i in range(4)):
+    for r in range(len(board) - (k - 1)):
+        for c in range(len(board[0]) - (k - 1)):
+            if board[r][c] != empty and all(board[r + i][c + i] == board[r][c] for i in range(k)):
                 return board[r][c]
 
     if 0 not in board[0]:
-        return 3
+        return -1
 
     return 0
-
-
-def local_2_player_game():
-    """
-    Runs a local 2 player game of Connect 4.
-
-    :return: None
-    """
-    # Implement your solution below
-    board = create_board()
-    count = 0
-    win = 0
-    previous_turn = 0
-    while win == 0:
-        clear_screen()
-        print_board(board)
-        if (count >= 1):
-            print("Player " + str((((count - 1) % 2) + 1)) +
-                  " dropped a piece into column " + str(previous_turn))
-
-        previous_turn = execute_player_turn((count % 2) + 1, board)
-
-        if (count >= 6):
-            win = end_of_game(board)
-        count += 1
-        print(win)
-
-    print_board(board)
-    print("Player " + str(win) + " has won!")
-    input("Press return/enter to continue...")
 
 
 def main():
@@ -233,7 +217,7 @@ def main():
     columns = validate_input_int("Number of columns in game board: ")
     board = create_board(columns, rows)
     k = validate_input_int(
-        "Number many to tokens to connect in order to win: ")
+        "Number of tokens to connect in order to win: ")
     num_human_players = validate_input_int("Number of human players: ")
     num_cpu_players = validate_input_int("Number of CPU players: ")
     total_players = num_cpu_players + num_human_players
@@ -277,6 +261,41 @@ def play_connetk(board, player_order, k):
     """
     Playing the connectk code
     """
+    win_flag = False
+    player_type = ""
+    previous_turn = 0
+    winner = 0
+    count = 0
+    while win_flag == False:
+        clear_screen()
+        print_board(board, len(player_order))
+        for i in range(len(player_order)):
+            
+            if player_type != "":
+                print(player_type + str(((count - 1) % len(player_order)) + 1 ) + " dropped a piece into column " + str(previous_turn))
+            
+            if isinstance(player_order[i], str):
+                difficulty = int(player_order[i])
+                player_type = "CPU "
+                if (difficulty == 1):
+                    previous_turn = cpu_player_easy(board, i + 1)
+                elif (difficulty == 2):
+                    previous_turn = cpu_player_medium(board, i + 1, k)
+                else:
+                    previous_turn = cpu_player_hard(board, i + 1, k)
+            else:
+                previous_turn = execute_player_turn(i + 1, board, len(board[0]))
+                player_type = "Player "
+            
+            count += 1
+            print_board(board, len(player_order))
+            winner = end_of_game(board, k)
+            if winner != 0:
+                win_flag = True
+                break
+
+    print(player_type + str(winner) + " has won!")
+
 
 
 def print_main_menu():
@@ -306,7 +325,7 @@ def cpu_player_easy(board, player):
             return column
 
 
-def cpu_player_medium(board, player):
+def cpu_player_medium(board, player, k):
     """
     Executes a move for the CPU on medium difficulty. 
     It first checks for an immediate win and plays that move if possible. 
@@ -324,7 +343,7 @@ def cpu_player_medium(board, player):
 
     for i in range(len(temp_board[0])):
         if drop_piece(temp_board, player, i):
-            if (end_of_game(temp_board) != 0):
+            if (end_of_game(temp_board, k) != 0):
                 drop_piece(board, player, i)
                 return i
 
@@ -332,7 +351,7 @@ def cpu_player_medium(board, player):
 
     for i in range(len(temp_board[0])):
         if drop_piece(temp_board, enemy_player, i):
-            if (end_of_game(temp_board) != 0):
+            if (end_of_game(temp_board, k) != 0):
                 drop_piece(board, player, i)
                 return i
 
@@ -343,7 +362,7 @@ def cpu_player_medium(board, player):
     return rand_num
 
 
-def cpu_player_hard(board, player):
+def cpu_player_hard(board, player, k):
     """
     Executes a move for the CPU on hard difficulty.
     This function creates a copy of the board to simulate moves.
