@@ -316,65 +316,29 @@ def cpu_player_hard(board, player):
 
     # temp_board = copy.deepcopy(board)
 
+    best_move = None
+    max_count = 0
+    for i in range(len(temp_board[0])):
+        if drop_piece(temp_board, player, i):
+            row = get_row(temp_board, i)
+            count = count_connected(temp_board, row, i, player)
+            if count > max_count:
+                best_move = i
+                max_count = count
+            remove_piece(temp_board, i)
+
+    if best_move is not None:
+        drop_piece(board, player, best_move)
+        return best_move
+
     indices = [i + 1 for i, element in enumerate(board[0]) if element == 0]
     sorted_indicies = sorted(
         indices, key=lambda x: get_distance_from_target(x, target=(ceil(len(board[0])/2))))
-    best_columns = indices[:(len(board[0])//2)]
-    rand_num = random.choice(best_columns)
+    # rand_num = random.choice(indices)
     print(sorted_indicies)
-    drop_piece(board, player, rand_num)
+    drop_piece(board, player, sorted_indicies[0])
     # print_board(board)
-    return rand_num
-
-
-def print_options():
-    print("=============== Vs Computer =============")
-    print("Select difficulty:")
-    print("1. Easy")
-    print("2. Medium")
-    print("3. Hard")
-    print("4. Back")
-    print("=========================================")
-
-
-def game_against_cpu():
-    print_options()
-    user_input = int(validate_input(
-        "Select a number (1-4): ", ["1", "2", "3", "4"]))
-
-    if user_input != 4:
-        player = int(validate_input(
-            "Would you like to be player 1 or 2? ", ["1", "2"]))
-        cpu_player = 2 if player == 1 else 1
-        board = create_board()
-        count = 0
-        win = 0
-        previous_turn = 0
-        while win == 0:
-            clear_screen()
-            print_board(board)
-            if (count >= 1):
-                print("Player " + str((((count - 1) % 2) + 1)) +
-                      " dropped a piece into column " + str(previous_turn))
-
-            if ((count % 2) + 1 == int(player)):
-                previous_turn = execute_player_turn(player, board)
-            else:
-                if (user_input == 1):
-                    previous_turn = cpu_player_easy(board, cpu_player)
-                elif (user_input == 2):
-                    previous_turn = cpu_player_medium(board, cpu_player)
-                else:
-                    previous_turn = cpu_player_hard(board, cpu_player)
-
-            if (count >= 6):
-                win = end_of_game(board)
-            count += 1
-            print(win)
-
-        print_board(board)
-        print("Player " + str(win) + " has won!")
-        input("Press return/enter to continue...")
+    return sorted_indicies[0]
 
 
 def get_distance_from_target(num, target):
@@ -396,6 +360,6 @@ if __name__ == "__main__":
     # local_2_player_game()
     # main()
     # end_of_game(board)
-
-    game_against_cpu()
+    outcome = cpu_player_hard(board, 1)
+    print(outcome)
     # cpu_player_easy(board, 1)
