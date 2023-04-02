@@ -194,7 +194,6 @@ def main():
 
     :return: None
     """
-
     rows = validate_input_int("Number of rows in game board: ")
     columns = validate_input_int("Number of columns in game board: ")
     board = create_board(columns, rows)
@@ -202,22 +201,16 @@ def main():
         "Number of tokens to connect in order to win: ")
     num_human_players = validate_input_int("Number of human players: ")
     num_cpu_players = validate_input_int("Number of CPU players: ")
-    total_players = num_cpu_players + num_human_players
-    print(total_players)
-
     players_order = []
     for i in range(1, num_human_players + 1):
         players_order.append(i)
-    print_options()
     if num_cpu_players > 0:
         for i in range(num_cpu_players):
-            # print("Select difficulty for cpu " + str(i) + ": ")
             difficulty = validate_input(
                 "Select difficulty for cpu " + str(i + 1) + ": ", ["1", "2", "3"])
             players_order.append(difficulty)
 
     random.shuffle(players_order)
-    print(players_order)
     play_connetk(board, players_order, k)
 
 
