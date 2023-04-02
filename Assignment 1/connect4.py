@@ -201,7 +201,6 @@ def local_2_player_game():
         if (count >= 6):
             win = end_of_game(board)
         count += 1
-        print(win)
 
     print_board(board)
     print("Player " + str(win) + " has won!")
