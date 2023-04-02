@@ -2,7 +2,7 @@ from math import ceil
 import random
 import copy
 """
-FIT1045: Sem 1 2023 Assignment 1 (Solution Copy)
+FIT1045: Sem 1 2023 Assignment 1
 """
 import random
 import os
@@ -81,14 +81,17 @@ def print_board(board, num_players):
     seperator = ""
     numbers = ""
     legend = ""
-    for _ in range(len(board[0])):
+    for i in range(len(board[0])):
         seperator += " ---"
-    
-    for i in range(len(board)):
-        numbers += "  " + str(i + 1) + " "
+        if i <= 9:
+            numbers += "  " + str(i + 1) + " "
+        else:
+            numbers += " " + str(i + 1) + " "
+
 
     for i in range(1, num_players + 1):
         legend += "P" + str(i) + ": " + tokens[i] + "  "
+    
     print("========== Connectk =========")
     print(legend + "\n")
     print(numbers)
@@ -206,6 +209,7 @@ def main():
     num_human_players = validate_input_int("Number of human players: ")
     num_cpu_players = validate_input_int("Number of CPU players: ")
     players_order = []
+    print_options()
 
     # places elements into the player_order, CPU players will be entered as strings and 
     # human players will be entered as ints.
@@ -285,7 +289,7 @@ def cpu_player_easy(board, player):
     """
     # Implement your solution below
     while True:
-        column = random.randint(1, 7)
+        column = random.randint(1, len(board[0]))
         ran_drop = drop_piece(board, player, column)
         if ran_drop != 0:
             return column
@@ -389,9 +393,13 @@ def print_options():
 
 def get_distance_from_target(num, target):
     """
-    Gets the absolute value of the distance from the target
+    Returns the absolute value of the distance between the given number 
+    and the target number.
 
-    
+    :param num: The number for which to calculate the distance from the target, int.
+    :param target: The target number, int.
+
+    :return: The absolute value of the distance between `num` and `target`.
 
     """
     return abs(target - num)

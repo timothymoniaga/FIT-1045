@@ -2,6 +2,8 @@
 FIT1045: Sem 1 2023 Assignment 1 (Solution Copy)
 """
 import random
+import copy
+from math import ceil
 import os
 
 
@@ -57,7 +59,7 @@ def create_board():
 
     :return: A 2D list of 6x7 dimensions.
     """
-    # Implement your solution below
+    # List comprehension 
     return [[0 for _ in range(7)] for _ in range(6)]
 
 
@@ -68,7 +70,7 @@ def print_board(board):
     :param board: The game board, 2D list of 6x7 dimensions.
     :return: None
     """
-    # Implement your solution below
+    # Starts with a "|" then concatonates based on the value of the board
     print("========== Connect4 =========")
     print("Player 1: X       Player 2: O\n")
     print("  1   2   3   4   5   6   7")
@@ -98,7 +100,7 @@ def drop_piece(board, player, column):
     :param column: The index of column to drop the piece into, int.
     :return: True if piece was successfully dropped, False if not.
     """
-    # Implement your solution below
+    # Checks each row in reverse 
     column = int(column)
     i = len(board) - 1
     while i >= 0:
@@ -114,6 +116,8 @@ def execute_player_turn(player, board):
     Prompts user for a legal move given the current game board
     and executes the move.
 
+    :param player: Current players turn, int.
+    :param board: Board that player is playing on, 2D list.
     :return: Column that the piece was dropped into, int.
     """
     # Implement your solution below
@@ -128,7 +132,8 @@ def execute_player_turn(player, board):
             print("That column is full, please try again.")
 
 
-def end_of_game(board):
+
+def end_of_game(board):  # Question 6
     """
     Checks if the game has ended with a winner
     or a draw.
@@ -136,49 +141,38 @@ def end_of_game(board):
     :param board: The game board, 2D list of 6 rows x 7 columns.
     :return: 0 if game is not over, 1 if player 1 wins, 2 if player 2 wins, 3 if draw.
     """
-    # Implement your solution below
-    def end_of_game(board):  # Question 6
-        """
-        Checks if the game has ended with a winner
-        or a draw.
+    # goes through the 2d array and checks each cell for corresponding values 4 in a row
+    # in any direction
+    empty = 0
+    # Check for horizontal wins
+    # not possible to win in the last 3 compile
+    for c in range(len(board[0]) - 3):
+        for r in range(len(board)):
+            if board[r][c] != empty and all(board[r][c + i] == board[r][c] for i in range(4)):
+                return board[r][c]
 
-        :param board: The game board, 2D list of 6 rows x 7 columns.
-        :return: 0 if game is not over, 1 if player 1 wins, 2 if player 2 wins, 3 if draw.
-        """
-        # Implement your solution below
+    # Check for vertical wins
+    for r in range(len(board) - 3):
+        for c in range(len(board[0])):
+            if board[r][c] != empty and all(board[r + i][c] == board[r][c] for i in range(4)):
+                return board[r][c]
 
-        # replace 4 with the input number to win  :)
+    # Check for backwards \ diagonal wins
+    for r in range(len(board) - 3):
+        for c in range(3, len(board[0])):
+            if board[r][c] != empty and all(board[r + i][c - i] == board[r][c] for i in range(4)):
+                return board[r][c]
 
-        empty = 0
-        # Check for horizontal wins
-        # not possible to win in the last 3 compile
+    # Check for foward / diagonal wins
+    for r in range(len(board) - 3):
         for c in range(len(board[0]) - 3):
-            for r in range(len(board)):
-                if board[r][c] != empty and all(board[r][c + i] == board[r][c] for i in range(4)):
-                    return board[r][c]
+            if board[r][c] != empty and all(board[r + i][c + i] == board[r][c] for i in range(4)):
+                return board[r][c]
 
-        # Check for vertical wins
-        for r in range(len(board) - 3):
-            for c in range(len(board[0])):
-                if board[r][c] != empty and all(board[r + i][c] == board[r][c] for i in range(4)):
-                    return board[r][c]
+    if 0 not in board[0]:
+        return 3
 
-        # Check for backwards \ diagonal wins
-        for r in range(len(board) - 3):
-            for c in range(3, len(board[0])):
-                if board[r][c] != empty and all(board[r + i][c - i] == board[r][c] for i in range(4)):
-                    return board[r][c]
-
-        # Check for foward / diagonal wins
-        for r in range(len(board) - 3):
-            for c in range(len(board[0]) - 3):
-                if board[r][c] != empty and all(board[r + i][c + i] == board[r][c] for i in range(4)):
-                    return board[r][c]
-
-        if 0 not in board[0]:
-            return 3
-
-        return 0
+    return 0
 
 
 def local_2_player_game():
@@ -187,7 +181,10 @@ def local_2_player_game():
 
     :return: None
     """
-    # Implement your solution below
+    # gets the total count of the game and subtracts one to get the previous turn
+    # uses modulo function to get the previous players number
+    # and uses count to check if its past 6 turns which means that it is possible
+    # to win 
     board = create_board()
     count = 0
     win = 0
@@ -214,7 +211,7 @@ def local_2_player_game():
 def main():
     """
     Defines the main application loop.
-User chooses a type of game to play or to exit.
+    User chooses a type of game to play or to exit.
 
     :return: None
     """
@@ -238,6 +235,11 @@ User chooses a type of game to play or to exit.
 
 
 def print_main_menu():
+    """
+    Prints the Main Menu.
+
+    :return: None
+    """
     print("=============== Main Menu ===============")
     print("Welcome to Connect 4!")
     print("1. View Rules")
@@ -258,7 +260,7 @@ def cpu_player_easy(board, player):
     """
     # Implement your solution below
     while True:
-        column = random.randint(1, 7)
+        column = random.randint(1, len(board[0]))
         ran_drop = drop_piece(board, player, column)
         if ran_drop != 0:
             return column
@@ -297,7 +299,6 @@ def cpu_player_medium(board, player):
     indices = [i + 1 for i, element in enumerate(board[0]) if element == 0]
     rand_num = random.choice(indices)
     drop_piece(board, player, rand_num)
-    # print_board(board)
     return rand_num
 
 
@@ -305,15 +306,56 @@ def cpu_player_hard(board, player):
     """
     Executes a move for the CPU on hard difficulty.
     This function creates a copy of the board to simulate moves.
-    <Insert player strategy here>
+    Looks for any immidiate wins or losses and wins or prevents loss.
+    Prioritises wins over blocks.
+    If there are none it finds the middle few rows and plays to control the centre of the board
 
     :param board: The game board, 2D list of 6x7 dimensions.
     :param player: The player whose turn it is, integer value of 1 or 2.
     :return: Column that the piece was dropped into, int.
     """
     # Implement your solution below
-    raise NotImplementedError
+    temp_board = copy.deepcopy(board)
+    enemy_player = 2 if player == 1 else 1
 
+    for i in range(len(temp_board[0])):
+        if drop_piece(temp_board, player, i):
+            if (end_of_game(temp_board) != 0):
+                drop_piece(board, player, i)
+                return i
+
+    temp_board = copy.deepcopy(board)
+
+    for i in range(len(temp_board[0])):
+        if drop_piece(temp_board, enemy_player, i):
+            if (end_of_game(temp_board) != 0):
+                drop_piece(board, player, i)
+                return i
+
+    # indicies gets all the possible columns it can drop in then that list gets ordered
+    # based on how close they are to the ceiling of the board columns/2 
+    # based on the board size it will determine the range e.g 7 columns = 3 middle rows
+    # 9 columns = 4 middle rows etc..
+    indices = [i + 1 for i, element in enumerate(board[0]) if element == 0]
+    sorted_indicies = sorted(
+        indices, key=lambda x: get_distance_from_target(x, target=(ceil(len(board[0])/2))))
+    best_columns = sorted_indicies[:(len(board[0])//2)]
+    rand_num = random.choice(best_columns)
+    drop_piece(board, player, rand_num)
+    return rand_num
+
+def get_distance_from_target(num, target):
+    """
+    Returns the absolute value of the distance between the given number 
+    and the target number.
+
+    :param num: The number for which to calculate the distance from the target, int.
+    :param target: The target number, int.
+
+    :return: The absolute value of the distance between `num` and `target`.
+
+    """
+    return abs(target - num)
 
 def print_options():
     """
@@ -337,7 +379,8 @@ def game_against_cpu():
 
     :return: None
     """
-    # Implement your solution below
+    # Uses similar logic to local 2 player game but calls the cpu_player_x based
+    # off the user input every time it is their turn
     print_options()
     user_input = int(validate_input(
         "Select a number (1-4): ", ["1", "2", "3", "4"]))
