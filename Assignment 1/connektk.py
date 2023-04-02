@@ -2,7 +2,7 @@ from math import ceil
 import random
 import copy
 """
-FIT1045: Sem 1 2023 Assignment 1 (Solution Copy)
+FIT1045: Sem 1 2023 Assignment 1
 """
 import random
 import os
@@ -12,7 +12,7 @@ def clear_screen():
     """
     Clears the terminal for Windows and Linux/MacOS.
 
-    :return: None
+    :return: None.
     """
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -54,11 +54,11 @@ def validate_input_int(prompt):
 
 def create_board(columns, rows):
     """
-    Returns a 2D list of 6 rows and 7 columns to represent
+    Returns a 2D list of x rows and y columns to represent
     the game board. Default cell value is 0.
 
-    :columns: The number of columns in the array
-    :rows: The number of rows in the array
+    :param columns: The number of columns in the array.
+    :param rows: The number of rows in the array.
     :return: A 2D list of columns x rows dimensions.
     """
     # Implement your solution below
@@ -69,25 +69,29 @@ def print_board(board, num_players):
     """
     Prints the game board to the console.
 
-    :param board: The game board, 2D list of 6x7 dimensions.
-    :return: None
+    :param board: The game board, 2D list.
+    :param num_players: Total number of players in the game.
+    :return: None.
     """
     # Implement your solution below
 
+    # Has a max of 12 players (including CPU players), this can be expanded but is
+    # set to this list for readability of the tokens, any character can be used
     tokens = [" ", "X", "O", "!", "@", "#", "$", "%", "^", "&", "*", "+", "~"]
     seperator = ""
     numbers = ""
     legend = ""
-    for _ in range(len(board[0])):
+    for i in range(len(board[0])):
         seperator += " ---"
-    
-    for i in range(len(board)):
-        numbers += "  " + str(i + 1) + " "
+        if i <= 9:
+            numbers += "  " + str(i + 1) + " "
+        else:
+            numbers += " " + str(i + 1) + " "
+
 
     for i in range(1, num_players + 1):
         legend += "P" + str(i) + ": " + tokens[i] + "  "
-
-
+    
     print("========== Connectk =========")
     print(legend + "\n")
     print(numbers)
@@ -107,7 +111,7 @@ def drop_piece(board, player, column):
     Please note that this function expects the column index
     to start at 1.
 
-    :param board: The game board, 2D list of 6x7 dimensions.
+    :param board: The game board, 2D list.
     :param player: The player who is dropping the piece, int.
     :param column: The index of column to drop the piece into, int.
     :return: True if piece was successfully dropped, False if not.
@@ -123,16 +127,18 @@ def drop_piece(board, player, column):
     return False
 
 
-def execute_player_turn(player, board, columns):
+def execute_player_turn(player, board):
     """
     Prompts user for a legal move given the current game board
     and executes the move.
 
+    :param player: Current players turn, int.
+    :param board: Board that player is playing on, 2D list.
     :return: Column that the piece was dropped into, int.
     """
     # Implement your solution below
     valid_inputs = []
-    for i in range(1, columns + 1):
+    for i in range(1, len(board[0]) + 1):
         valid_inputs.append(str(i))
 
     while True:
@@ -151,8 +157,9 @@ def end_of_game(board, k):
     Checks if the game has ended with a winner
     or a draw.
 
-    :param board: The game board, 2D list of 6 rows x 7 columns.
-    :return: 0 if game is not over, 1 if player 1 wins, 2 if player 2 wins, 3 if draw.
+    :param board: The game board, 2D list.
+    :param k: Number of tokens required in a row required to win, int.
+    :return: 0 if game is not over, 1 if player 1 wins, 2 if player 2 wins etc, -1 if draw.
     """
     # Implement your solution below
     empty = 0
@@ -202,6 +209,11 @@ def main():
     num_human_players = validate_input_int("Number of human players: ")
     num_cpu_players = validate_input_int("Number of CPU players: ")
     players_order = []
+    print_options()
+
+    # places elements into the player_order, CPU players will be entered as strings and 
+    # human players will be entered as ints.
+    # will be used for determining what code to play when it comes to their turn
     for i in range(1, num_human_players + 1):
         players_order.append(i)
     if num_cpu_players > 0:
@@ -216,7 +228,13 @@ def main():
 
 def play_connetk(board, player_order, k):
     """
-    Playing the connectk code
+    Logic driver of Connect k 
+
+    :param board: The game board, 2D list.
+    :param player_order: shuffled list of player order, [int or string].
+    :param k: number of tokens needed to connect in order to win, int.
+
+    :return: None
     """
     win_flag = False
     player_type = ""
@@ -228,6 +246,9 @@ def play_connetk(board, player_order, k):
         print_board(board, len(player_order))
         for i in range(len(player_order)):
             
+            # gets the total count of the game and subtracts one to get the previous turn
+            # uses modulo function to get who the player was and adds one because
+            # there would be 0 values 
             if player_type != "":
                 print(player_type + str(((count - 1) % len(player_order)) + 1 ) + " dropped a piece into column " + str(previous_turn))
             
@@ -241,7 +262,7 @@ def play_connetk(board, player_order, k):
                 else:
                     previous_turn = cpu_player_hard(board, i + 1, k)
             else:
-                previous_turn = execute_player_turn(i + 1, board, len(board[0]))
+                previous_turn = execute_player_turn(i + 1, board)
                 player_type = "Player "
             
             count += 1
@@ -262,13 +283,13 @@ def cpu_player_easy(board, player):
     Executes a move for the CPU on easy difficulty. This function 
     plays a randomly selected column.
 
-    :param board: The game board, 2D list of 6x7 dimensions.
-    :param player: The player whose turn it is, integer value of 1 or 2.
+    :param board: The game board, 2D list.
+    :param player: The player whose turn it is, int
     :return: Column that the piece was dropped into, int.
     """
     # Implement your solution below
     while True:
-        column = random.randint(1, 7)
+        column = random.randint(1, len(board[0]))
         ran_drop = drop_piece(board, player, column)
         if ran_drop != 0:
             return column
@@ -284,6 +305,7 @@ def cpu_player_medium(board, player, k):
 
     :param board: The game board, 2D list of 6x7 dimensions.
     :param player: The player whose turn it is, integer value of 1 or 2.
+    :param k: Number of tokens in a row required to win, int.
     :return: Column that the piece was dropped into, int.
     """
     # Implement your solution below
@@ -315,10 +337,13 @@ def cpu_player_hard(board, player, k):
     """
     Executes a move for the CPU on hard difficulty.
     This function creates a copy of the board to simulate moves.
-    <Insert player strategy here>
+    Looks for any immidiate wins or losses and wins or prevents loss.
+    Prioritises wins over blocks.
+    If there are none it finds the middle few rows and plays to control the centre of the board
 
     :param board: The game board, 2D list of 6x7 dimensions.
     :param player: The player whose turn it is, integer value of 1 or 2.
+    :param k: Number of tokens in a row required to win, int.
     :return: Column that the piece was dropped into, int.
     """
     # Implement your solution below
@@ -339,6 +364,10 @@ def cpu_player_hard(board, player, k):
                 drop_piece(board, player, i)
                 return i
 
+    # indicies gets all the possible columns it can drop in then that list gets ordered
+    # based on how close they are to the ceiling of the board columns/2 
+    # based on the board size it will determine the range e.g 7 columns = 3 middle rows
+    # 9 columns = 4 middle rows etc..
     indices = [i + 1 for i, element in enumerate(board[0]) if element == 0]
     sorted_indicies = sorted(
         indices, key=lambda x: get_distance_from_target(x, target=(ceil(len(board[0])/2))))
@@ -363,6 +392,16 @@ def print_options():
     print("=========================================")
 
 def get_distance_from_target(num, target):
+    """
+    Returns the absolute value of the distance between the given number 
+    and the target number.
+
+    :param num: The number for which to calculate the distance from the target, int.
+    :param target: The target number, int.
+
+    :return: The absolute value of the distance between `num` and `target`.
+
+    """
     return abs(target - num)
 
 
