@@ -17,24 +17,6 @@ def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
-def print_rules():
-    """
-    Prints the rules of the game.
-
-    :return: None
-    """
-    print("================= Rules =================")
-    print("Connect 4 is a two-player game where the")
-    print("objective is to get four of your pieces")
-    print("in a row either horizontally, vertically")
-    print("or diagonally. The game is played on a")
-    print("6x7 grid. The first player to get four")
-    print("pieces in a row wins the game. If the")
-    print("grid is filled and no player has won,")
-    print("the game is a draw.")
-    print("=========================================")
-
-
 def validate_input(prompt, valid_inputs):
     """
     Repeatedly ask user for input until they enter an input
@@ -238,24 +220,6 @@ def main():
     print(players_order)
     play_connetk(board, players_order, k)
 
-    # Implement your solution below
-    # user_input = ""
-    # while user_input != "4":
-    #     print_main_menu()
-    #     user_input = validate_input(
-    #         "Select an option 1-4: ", ["1", "2", "3", "4"])
-    #     if (user_input == "1"):
-    #         print_rules()
-    #         input("Press return/enter to continue...")
-    #     elif (user_input == "2"):
-    #         local_2_player_game()
-    #     elif (user_input == "3"):
-    #         game_against_cpu()  # does not work
-    #     else:
-    #         return
-
-    #     clear_screen()
-
 
 def play_connetk(board, player_order, k):
     """
@@ -294,18 +258,10 @@ def play_connetk(board, player_order, k):
                 win_flag = True
                 break
 
-    print(player_type + str(winner) + " has won!")
-
-
-
-def print_main_menu():
-    print("=============== Main Menu ===============")
-    print("Welcome to Connect 4!")
-    print("1. View Rules")
-    print("2. Play a local 2 player game")
-    print("3. Play a game against the computer")
-    print("4. Exit")
-    print("=========================================")
+    if(winner != -1):
+        print(player_type + str(winner) + " has won!")
+    else:
+        print ("Draw!")
 
 
 def cpu_player_easy(board, player):
@@ -373,7 +329,30 @@ def cpu_player_hard(board, player, k):
     :return: Column that the piece was dropped into, int.
     """
     # Implement your solution below
-    raise NotImplementedError
+    temp_board = copy.deepcopy(board)
+    enemy_player = 2 if player == 1 else 1
+
+    for i in range(len(temp_board[0])):
+        if drop_piece(temp_board, player, i):
+            if (end_of_game(temp_board, k) != 0):
+                drop_piece(board, player, i)
+                return i
+
+    temp_board = copy.deepcopy(board)
+
+    for i in range(len(temp_board[0])):
+        if drop_piece(temp_board, enemy_player, i):
+            if (end_of_game(temp_board, k) != 0):
+                drop_piece(board, player, i)
+                return i
+
+    indices = [i + 1 for i, element in enumerate(board[0]) if element == 0]
+    sorted_indicies = sorted(
+        indices, key=lambda x: get_distance_from_target(x, target=(ceil(len(board[0])/2))))
+    best_columns = sorted_indicies[:(len(board[0])//2)]
+    rand_num = random.choice(best_columns)
+    drop_piece(board, player, rand_num)
+    return rand_num
 
 
 def print_options():
@@ -390,51 +369,9 @@ def print_options():
     print("3. Hard")
     print("=========================================")
 
+def get_distance_from_target(num, target):
+    return abs(target - num)
 
-def game_against_cpu():
-    """
-    Runs a game of Connect 4 against the computer.
-
-    :return: None
-    """
-    # Implement your solution below
-    print_options()
-    user_input = int(validate_input(
-        "Select a number (1-4): ", ["1", "2", "3", "4"]))
-
-    if user_input != 4:
-        player = int(validate_input(
-            "Would you like to be player 1 or 2? ", ["1", "2"]))
-        cpu_player = 2 if player == 1 else 1
-        board = create_board()
-        count = 0
-        win = 0
-        previous_turn = 0
-        while win == 0:
-            clear_screen()
-            print_board(board)
-            if (count >= 1):
-                print("Player " + str((((count - 1) % 2) + 1)) +
-                      " dropped a piece into column " + str(previous_turn))
-
-            if ((count % 2) + 1 == int(player)):
-                previous_turn = execute_player_turn(player, board)
-            else:
-                if (user_input == 1):
-                    previous_turn = cpu_player_easy(board, cpu_player)
-                elif (user_input == 2):
-                    previous_turn = cpu_player_medium(board, cpu_player)
-                else:
-                    previous_turn = cpu_player_hard(board, cpu_player)
-
-            if (count >= 6):
-                win = end_of_game(board)
-            count += 1
-            print(win)
-
-        print_board(board)
-        print("Player " + str(win) + " has won!")
-        input("Press return/enter to continue...")
 
 
 if __name__ == "__main__":
