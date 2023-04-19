@@ -48,6 +48,8 @@ class City():
 
         self.id_to_cities[city_id] = self
 
+        self.name_to_cities[name] = self
+
         # print(self.id_to_cities)
 
         #TODO
@@ -60,6 +62,8 @@ class City():
         :param other_city: a city to measure the distance to
         :return: the rounded-up distance in kilometers
         """
+        return geodesic(self.coordinates, other_city.coordinates).km
+
         #TODO
 
     def __str__(self) -> str:
@@ -69,6 +73,8 @@ class City():
 
         :return: a string representing the city.
         """
+        return f"{self.name} ({self.city_id})"
+
         #TODO
 
     def get_table_data(self) -> list[str]:
@@ -104,6 +110,14 @@ def get_cities_by_name(city_name: str) -> list[City]:
     :param city_name: the name of the city.
     :return: the list of cities known by this name. 
     """
+    cities = []
+
+    for name, city in City.name_to_cities.items():
+        if name.lower() == city_name.lower():
+            cities.append(city)
+
+    return cities
+
     #TODO
 
 
@@ -128,11 +142,11 @@ def test_example_cities() -> None:
     Assuming the correct cities have been created, runs a small test.
     """
     melbourne = get_city_by_id(1036533631)
-    #sydney = get_cities_by_name("Sydney")[0]
-    # print(melbourne)
+    sydney = get_cities_by_name("Sydney")[0]
+    print(melbourne)
     print(f"Melbourne's name is {melbourne.name}")
     print(f"Melbourne's population is {melbourne.population}")
-    #print(f"The distance between Melbourne and Sydney is {melbourne.distance(sydney)} km")
+    print(f"The distance between Melbourne and Sydney is {melbourne.distance(sydney)} km")
 
 
 if __name__ == "__main__":
