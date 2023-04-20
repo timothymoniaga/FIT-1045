@@ -1,112 +1,144 @@
 """
 This file is part of Assignment 2 of FIT1045, S1 2023.
 
-It contains the class Country.
+It contains the class City.
 
-@file country.py
+@file city.py
 """
-from tabulate import tabulate
-from city import City, create_example_cities
+from __future__ import annotations #https://peps.python.org/pep-0563/
+from typing import Tuple
+import math
+import geopy.distance
 
-class Country():
+class City():
     """
-    Represents a country.
+    Represents a city.
     """
 
-    name_to_countries = dict() # a dict that associates country names to instances.
+    #associates an id to an instance of City
+    id_to_cities = dict()
 
-    def __init__(self, name: str, iso3: str) -> None:
+    # associates city names to a list of instances of City.
+    # We use a list because there may be multiple cities with the same name.
+    name_to_cities = dict()
+
+    table_headers = ["Name", "Coordinates", "City type", "Population", "City ID"]
+
+    def __init__(self, name: str, coordinates: Tuple[float, float], city_type: str,\
+                  population: int, city_id: int) -> None:
         """
-        Creates an instance with a country name and a country ISO code with 3 characters.
+        Initialises a city with the given data.
 
-        :param country_name: The name of the country
-        :param country_iso3: The unique 3-letter identifier of this country
-	    :return: None
-        """
-        self.name = name
-        self.iso3 = iso3
-        #TODO
-
-    def add_city(self, city: City) -> None:
-        """
-        Adds a city to the country.
-
-        :param city: The city to add to this country
+        :param name: the name of the city.
+        :param coordinates: the coordinates of the city (latitute, longitude)
+        :param city_type: the type of city (e.g. admin). Can be empty.
+        :population: the population of the city.
+        :city_id: an integer unique to this city.
         :return: None
         """
-        #TODO
+        self.name = name
 
-    def get_cities(self, city_type: list[str] = None) -> list[City]:
-        """
-        Returns a list of cities of this country.
+        self.coordinates = coordinates
 
-        The argument city_type can be given to specify a subset of
-        the city types that must be returned.
-        Cities that do not correspond to these city types are not returned.
-        If None is given, all cities are returned.
+        self.city_type = city_type
 
-        :param city_type: None, or a list of strings, each of which describes the type of city.
-        :return: a list of cities in this country that have the specified city types.
-        """
-        #TODO
+        self.population = population
 
-    def print_cities(self) -> None:
+        self.city_id = city_id
+
+        self.id_to_cities[city_id] = self
+
+        if name in City.name_to_cities:
+            City.name_to_cities[name].append(self)
+        else:
+            City.name_to_cities[name] = [self]
+
+    def distance(self, other_city: City) -> int:
         """
-        Prints a table of the cities in the country, from most populous at the top
-        to least populous. Use the tabulate module to print the table, with row headers:
-        "Order", "Name", "Coordinates", "City type", "Population", "City ID".
-        Order should start at 0 for the most populous city, and increase by 1 for each city.
+        Returns the distance in kilometers between two cities using the great circle method,
+        rounded up to an integer.
+
+        :param other_city: a city to measure the distance to
+        :return: the rounded-up distance in kilometers
         """
-        #TODO
+
+        distance_km = geopy.distance.distance(self.coordinates, other_city.coordinates).km
+        distance_rounded = round(distance_km)
+        return distance_rounded
 
     def __str__(self) -> str:
         """
-        Returns the name of the country.
+        Returns the name of the city and city ID in parentheses.
+        For example, "Melbourne (1036533631)"
+
+        :return: a string representing the city.
         """
-        #TODO
+        return f"{self.name} ({self.city_id})"
 
+    def get_table_data(self) -> list[str]:
+        """
+        Returns a list of data about the city.
+        It follows the list given by the class variable table_headers, so the attributes are
+        self.name, self.coordinates, self.city_type, self.population, self.city_id,
+        in this order. For example,
+        ['Melbourne', "('-37.8136', '144.9631')", 'admin', '4529500', '1036533631'].
 
-def add_city_to_country(city: City, country_name: str, country_iso3: str) -> None:
+        :return: A list of data about the city.
+        """
+        ret_val = [self.name, str(self.coordinates), self.city_type, str(self.population), str(self.city_id)] 
+        return ret_val
+
+def get_city_by_id(city_id: int) -> City | None:
     """
-    Adds a City to a country.
-    If the country does not exist, create it.
+    Given a city ID, returns the city with that ID if one is known, None otherwise.
 
-    :param country_name: The name of the country
-    :param country_iso3: The unique 3-letter identifier of this country
-    :return: None
+    :param city_id: the ID of the city.
+    :return: the city with that ID if one is known, None otherwise.
     """
-    #TODO
+    return City.id_to_cities.get(city_id)
 
-def find_country_of_city(city: City) -> Country:
+def get_cities_by_name(city_name: str) -> list[City]:
     """
-    Returns the Country this city belongs to.
-    We assume there is exactly one country containing this city.
+    Given the name, returns the list of cities known by this name. 
+    If no city is known, returns an empty list.
 
-    :param city: The city.
-    :return: The country where the city is.
+    :param city_name: the name of the city.
+    :return: the list of cities known by this name. 
     """
-    #TODO
+    cities = []
 
-def create_example_countries() -> None:
-    """
-    Creates a few countries for testing purposes.
-    Adds some cities to it.
-    """
-    create_example_cities()
-    malaysia = Country("Malaysia", "MAS")
-    kuala_lumpur = City.name_to_cities["Kuala Lumpur"][0]
-    malaysia.add_city(kuala_lumpur)
+    for i in City.name_to_cities.values():
+        for city in i:
+            if city.name.lower() == city_name.lower():
+                cities.append(city)
+        
+    return cities
 
-    for city_name in ["Melbourne", "Canberra", "Sydney"]:
-        add_city_to_country(City.name_to_cities[city_name][0], "Australia", "AUS")
-
-def test_example_countries() -> None:
+def create_example_cities() -> None:
     """
-    Assuming the correct countries have been created, runs a small test.
+    Creates a few cities for testing purposes.
     """
-    Country.name_to_countries["Australia"].print_cities()
+    City("Melbourne", (-37.8136, 144.9631), "admin", 4529500, 1036533631)
+    City("Canberra", (-35.2931, 149.1269), "primary", 381488, 1036142029)
+    City("Sydney", (-33.865, 151.2094), "admin", 4840600, 1036074917)
+    City("Kuala Lumpur", (3.1478, 101.6953), "primary", 8639000, 1458988644)
+    #an example of two cities with the same name
+    City("Santiago", (-33.45, -70.6667), "primary", 7026000, 1152554349)
+    City("Santiago", (19.45, -70.7), "admin", 1343423, 1214985348)
+    #an example of a city without a specific city type
+    City("Baoding", (38.8671, 115.4845), "", 11860000, 1156256829)
 
+def test_example_cities() -> None:
+    """
+    Assuming the correct cities have been created, runs a small test.
+    """
+    melbourne = get_city_by_id(1036533631)
+    sydney = get_cities_by_name("Sydney")[0]
+    print(melbourne)
+    print(f"Melbourne's name is {melbourne.name}")
+    print(f"Melbourne's population is {melbourne.population}")
+    print(f"The distance between Melbourne and Sydney is {melbourne.distance(sydney)} km")
 
 if __name__ == "__main__":
-    create_example_countries()
-    test_example_countries()
+    create_example_cities()
+    test_example_cities()
