@@ -62,8 +62,8 @@ class City():
         :return: the rounded-up distance in kilometers
         """
 
-        distance_km = geopy.distance.distance(self.coordinates, other_city.coordinates).km
-        distance_rounded = round(distance_km)
+        distance_km = geopy.distance.great_circle(self.coordinates, other_city.coordinates).km
+        distance_rounded = math.ceil(distance_km)
         return distance_rounded
 
     def __str__(self) -> str:
