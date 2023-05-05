@@ -1,7 +1,7 @@
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 from itinerary import Itinerary
-from city import City
+from city import City, create_example_cities, get_cities_by_name
 
 def plot_itinerary(itinerary: Itinerary, projection='robin', line_width=2, colour='b') -> None:
     """
@@ -15,52 +15,58 @@ def plot_itinerary(itinerary: Itinerary, projection='robin', line_width=2, colou
     :param line_width: The width of the line to draw.
     :param colour: The colour of the line to draw.
     """
-    # Extract the list of cities from the itinerary
-    cities = itinerary.get_cities()
+    # Get the list of cities from the itinerary
+    cities: List[City] = itinerary.cities
 
-    # Determine the map boundaries by finding the min/max coordinates
-    min_lat = min(city.get_latitude() for city in cities) - 5
-    max_lat = max(city.get_latitude() for city in cities) + 5
-    min_lon = min(city.get_longitude() for city in cities) - 5
-    max_lon = max(city.get_longitude() for city in cities) + 5
+    # Define the file name for the plot
+    file_name = f"map_{'_'.join([c.name for c in cities])}.png"
 
-    # Ensure the map size is at least 50 degrees in each direction
-    lat_diff = max_lat - min_lat
-    lon_diff = max_lon - min_lon
-    if lat_diff < 50:
-        mid_lat = (max_lat + min_lat) / 2
-        min_lat = mid_lat - 25
-        max_lat = mid_lat + 25
-    if lon_diff < 50:
-        mid_lon = (max_lon + min_lon) / 2
-        min_lon = mid_lon - 25
-        max_lon = mid_lon + 25
+    # Define the map bounds
+    min_lat, min_lon = min([c.coordinates[0] for c in cities]), min([c.coordinates[1] for c in cities])
+    max_lat, max_lon = max([c.coordinates[0] for c in cities]), max([c.coordinates[1] for c in cities])
+    extra_padding = 5
+    min_lat, max_lat = min_lat - extra_padding, max_lat + extra_padding
+    min_lon, max_lon = min_lon - extra_padding, max_lon + extra_padding
 
-    # Create the map using the specified projection
-    m = Basemap(projection=projection, resolution='l',
-                llcrnrlat=min_lat, urcrnrlat=max_lat,
-                llcrnrlon=min_lon, urcrnrlon=max_lon)
+    # Ensure a minimum size of 50 degrees in each direction
+    if max_lon - min_lon < 50:
+        avg_lon = (max_lon + min_lon) / 2
+        min_lon, max_lon = avg_lon - 25, avg_lon + 25
+    if max_lat - min_lat < 50:
+        avg_lat = (max_lat + min_lat) / 2
+        min_lat, max_lat = avg_lat - 25, avg_lat + 25
 
-    # Draw the coastlines and country borders
+    # Define the map projection and size
+    m = Basemap(projection=projection, lon_0=0, resolution='l')
+    plt.figure(figsize=(10, 8))
+
+    # Draw the map features
     m.drawcoastlines()
     m.drawcountries()
+    m.fillcontinents(color='beige', lake_color='lightblue')
+    m.drawmapboundary(fill_color='lightblue')
 
-    # Draw the cities as red dots
+    # Draw the cities and the itinerary
     for city in cities:
-        x, y = m(city.get_longitude(), city.get_latitude())
-        m.plot(x, y, 'ro')
-
-    # Draw lines between consecutive cities
+        x, y = m(city.coordinates[1], city.coordinates[0])
+        m.plot(x, y, 'bo', markersize=6)
+        plt.text(x, y, city.name, fontsize=10, fontweight='bold', ha='center', va='center')
     for i in range(len(cities) - 1):
-        start_city = cities[i]
-        end_city = cities[i + 1]
-        start_x, start_y = m(start_city.get_longitude(), start_city.get_latitude())
-        end_x, end_y = m(end_city.get_longitude(), end_city.get_latitude())
-        m.plot([start_x, end_x], [start_y, end_y], color=colour, linewidth=line_width)
+        city1, city2 = cities[i], cities[i + 1]
+        x1, y1 = m(city1.coordinates[1], city1.coordinates[0])
+        x2, y2 = m(city2.coordinates[1], city2.coordinates[0])
+        m.drawgreatcircle(x1, y1, x2, y2, linewidth=line_width, color=colour)
 
-    # Save the map to a file with the name map_city1_city2_city3_..._cityX.png
-    filename = 'map_' + '_'.join(city.get_name() for city in cities) + '.png'
-    plt.savefig(filename)
+    # Save the plot to file
+    plt.savefig(file_name)
+    plt.show
 
-    # Show the map (optional)
-    plt.show()
+if __name__ == "__main__":
+    city_list = list()
+    city_list.append(City("Melbourne", (-37.8136, 144.9631), "primary", 4529500, 1036533631))
+    city_list.append(City("Sydney", (-33.8688, 151.2093), "primary", 4840600, 1036074917))
+    city_list.append(City("Brisbane", (-27.4698, 153.0251), "primary", 2314000, 1036192929))
+    city_list.append(City("Perth", (-31.9505, 115.8605), "1992000", 2039200, 1036178956))
+
+    # plot itinerary
+    plot_itinerary(Itinerary(city_list))

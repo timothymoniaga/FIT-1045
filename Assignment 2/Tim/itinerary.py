@@ -56,7 +56,6 @@ class Itinerary():
         :param city: the city to insert
         :return: None.
         """
-        # find the position that results in the minimum distance
         min_distance = math.inf
         min_position = None
         for i in range(len(self.cities)):
@@ -67,7 +66,6 @@ class Itinerary():
                 min_position = i
             self.cities.pop(i)
 
-        # insert the city at the chosen position
         self.cities.insert(min_position, city)
 
     def __str__(self) -> str:
