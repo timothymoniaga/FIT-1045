@@ -6,6 +6,8 @@ It contains the class City.
 @file city.py
 """
 from __future__ import annotations #https://peps.python.org/pep-0563/
+import sys
+sys.path.append('/path/to/geopy/module')
 from typing import Tuple
 import math
 import geopy.distance
