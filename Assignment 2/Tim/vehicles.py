@@ -39,7 +39,16 @@ class Vehicle(ABC):
         :return: the travel time in hours (an integer),
                  or math.inf if the travel is not possible.
         """
-        #TODO
+        total_time = 0
+        for i in range(len(itinerary.cities) - 1):
+            departure = itinerary.cities[i]
+            arrival = itinerary.cities[i + 1]
+            travel_time = self.compute_travel_time(departure, arrival)
+            # this needs fixing
+            if travel_time == math.inf:
+                return math.inf
+            total_time += travel_time
+        return total_time
 
     @abstractmethod
     def __str__(self) -> str:
@@ -73,7 +82,8 @@ class CrappyCrepeCar(Vehicle):
         :return: the travel time in hours, rounded up to an integer,
                  or math.inf if the travel is not possible.
         """
-        #TODO
+        # TODO: check the vehicle type? and if its on the same landmass
+        return math.ceil((departure.distance(arrival) / self.speed))
 
     def __str__(self) -> str:
         """
@@ -82,7 +92,8 @@ class CrappyCrepeCar(Vehicle):
 
         :return: the string representation of the vehicle.
         """
-        #TODO
+        return f"CrappyCrepeCar ({self.speed} km/h)"
+
 
 class DiplomacyDonutDinghy(Vehicle):
     """
@@ -101,7 +112,8 @@ class DiplomacyDonutDinghy(Vehicle):
         :param in_country_speed: the speed within one country.
         :param between_primary_speed: the speed between two primary cities.
         """
-        #TODO
+        self.in_country_speed = in_country_speed 
+        self.between_primary_speed = between_primary_speed
 
     def compute_travel_time(self, departure: City, arrival: City) -> float:
         """
@@ -114,7 +126,14 @@ class DiplomacyDonutDinghy(Vehicle):
         :return: the travel time in hours, rounded up to an integer,
                  or math.inf if the travel is not possible.
         """
-        #TODO
+        departure_country = find_country_of_city(departure)
+        arrival_country = find_country_of_city(arrival)
+        if(departure_country == arrival_country):
+            return math.ceil((departure.distance(arrival) / self.in_country_speed))
+        elif(departure.city_type == "primary" and arrival.city_type == "primary"):
+            return math.ceil((departure.distance(arrival) / self.between_primary_speed))
+        else:
+            return math.inf
 
     def __str__(self) -> str:
         """
@@ -123,7 +142,9 @@ class DiplomacyDonutDinghy(Vehicle):
 
         :return: the string representation of the vehicle.
         """
-        #TODO
+        return f"DiplomacyDonutDinghy ({self.in_country_speed} km/h | {self.between_primary_speed} km/h)"
+
+
 
 class TeleportingTarteTrolley(Vehicle):
     """
@@ -139,7 +160,8 @@ class TeleportingTarteTrolley(Vehicle):
         :param travel_time: the time it takes to travel.
         :param max_distance: the maximum distance it can travel.u 
         """
-        #TODO
+        self.travel_time = travel_time
+        self.max_distance = max_distance
 
     def compute_travel_time(self, departure: City, arrival: City) -> float:
         """
@@ -152,7 +174,11 @@ class TeleportingTarteTrolley(Vehicle):
         :return: the travel time in hours, rounded up to an integer,
                  or math.inf if the travel is not possible.
         """
-        #TODO
+        distance = departure.distance(arrival)
+        if(distance < self.max_distance):
+            return math.ceil(self.travel_time)
+        else: 
+            return math.inf
 
     def __str__(self) -> str:
         """
@@ -161,7 +187,8 @@ class TeleportingTarteTrolley(Vehicle):
 
         :return: the string representation of the vehicle.
         """
-        #TODO
+        return f"TeleportingTarteTrolley ({self.travel_time} h | {self.max_distance} km)"
+
 
 def create_example_vehicles() -> list[Vehicle]:
     """
@@ -181,6 +208,9 @@ if __name__ == "__main__":
 
     #we create some vehicles
     vehicles = create_example_vehicles()
+
+    #city_list = list(from_cities) 
+    #print(vehicles[0].compute_travel_time(city_list[0], city_list[1]))
 
     to_cities = set(from_cities)
     for from_city in from_cities:
