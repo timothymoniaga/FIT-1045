@@ -38,9 +38,8 @@ def plot_itinerary(itinerary: Itinerary, projection='robin', line_width=2, colou
 
     # Draw the coastlines, countries, and fill the oceans and continents.
     map.drawcoastlines(linewidth=0.5)
-    map.drawcountries(linewidth=0.5)
-    map.fillcontinents(color='gray', lake_color='lightblue')
-    map.drawmapboundary(fill_color='lightblue')
+    map.fillcontinents(color='gray', lake_color='white')
+    map.drawmapboundary(fill_color='white')
 
     # Draw a line connecting the cities in the itinerary.
     x, y = map(lons, lats)
