@@ -1,7 +1,14 @@
-from mpl_toolkits.basemap import Basemap
+"""
+This file is part of Assignment 2 of FIT1045, S1 2023.
+
+It allows plotting an Itinerary as the picture of a map.
+
+@file map_plotting.py
+"""
+from mpl_toolkits.basemap import Basemap #have to do 'pip install basemap'
 import matplotlib.pyplot as plt
 from itinerary import Itinerary
-from city import City, create_example_cities, get_cities_by_name
+from city import City
 
 def plot_itinerary(itinerary: Itinerary, projection='robin', line_width=2, colour='b') -> None:
     """
@@ -15,54 +22,40 @@ def plot_itinerary(itinerary: Itinerary, projection='robin', line_width=2, colou
     :param line_width: The width of the line to draw.
     :param colour: The colour of the line to draw.
     """
-    # Get the list of cities from the itinerary
-    cities: List[City] = itinerary.cities
+    # Extract the latitude and longitude coordinates of all cities in the itinerary.
+    lats = [city.coordinates[0] for city in itinerary.cities]
+    lons = [city.coordinates[1] for city in itinerary.cities]
 
-    # Define the file name for the plot
-    file_name = f"map_{'_'.join([c.name for c in cities])}.png"
+    # Calculate the extent of the map.
+    min_lat = min(lats) - 5
+    max_lat = max(lats) + 5
+    min_lon = min(lons) - 5
+    max_lon = max(lons) + 5
 
-    # Define the map bounds
-    min_lat, min_lon = min([c.coordinates[0] for c in cities]), min([c.coordinates[1] for c in cities])
-    max_lat, max_lon = max([c.coordinates[0] for c in cities]), max([c.coordinates[1] for c in cities])
-    extra_padding = 5
-    min_lat, max_lat = min_lat - extra_padding, max_lat + extra_padding
-    min_lon, max_lon = min_lon - extra_padding, max_lon + extra_padding
+    # Initialize a Basemap instance.
+    map = Basemap(projection=projection, lon_0=0, resolution='c', area_thresh=10000,
+                  llcrnrlat=min_lat, urcrnrlat=max_lat, llcrnrlon=min_lon, urcrnrlon=max_lon)
 
-    # Ensure a minimum size of 50 degrees in each direction
-    if max_lon - min_lon < 50:
-        avg_lon = (max_lon + min_lon) / 2
-        min_lon, max_lon = avg_lon - 25, avg_lon + 25
-    if max_lat - min_lat < 50:
-        avg_lat = (max_lat + min_lat) / 2
-        min_lat, max_lat = avg_lat - 25, avg_lat + 25
+    # Draw the coastlines, countries, and fill the oceans and continents.
+    map.drawcoastlines(linewidth=0.5)
+    map.drawcountries(linewidth=0.5)
+    map.fillcontinents(color='gray', lake_color='lightblue')
+    map.drawmapboundary(fill_color='lightblue')
 
-    # Define the map projection and size
-    m = Basemap(projection=projection, lon_0=0, resolution='l')
-    plt.figure(figsize=(10, 8))
+    # Draw a line connecting the cities in the itinerary.
+    x, y = map(lons, lats)
+    map.plot(x, y, color=colour, linewidth=line_width, marker='o', markersize=4)
 
-    # Draw the map features
-    m.drawcoastlines()
-    m.drawcountries()
-    m.fillcontinents(color='beige', lake_color='lightblue')
-    m.drawmapboundary(fill_color='lightblue')
+    # Save the resulting plot to a file with a name based on the itinerary.
+    filename = "map_" + "_".join([city.name for city in itinerary.cities]) + ".png"
+    plt.savefig(filename)
 
-    # Draw the cities and the itinerary
-    for city in cities:
-        x, y = m(city.coordinates[1], city.coordinates[0])
-        m.plot(x, y, 'bo', markersize=6)
-        plt.text(x, y, city.name, fontsize=10, fontweight='bold', ha='center', va='center')
-    for i in range(len(cities) - 1):
-        city1, city2 = cities[i], cities[i + 1]
-        x1, y1 = m(city1.coordinates[1], city1.coordinates[0])
-        x2, y2 = m(city2.coordinates[1], city2.coordinates[0])
-        m.drawgreatcircle(x1, y1, x2, y2, linewidth=line_width, color=colour)
 
-    # Save the plot to file
-    plt.savefig(file_name)
-    plt.show
 
 if __name__ == "__main__":
+    # create some cities
     city_list = list()
+
     city_list.append(City("Melbourne", (-37.8136, 144.9631), "primary", 4529500, 1036533631))
     city_list.append(City("Sydney", (-33.8688, 151.2093), "primary", 4840600, 1036074917))
     city_list.append(City("Brisbane", (-27.4698, 153.0251), "primary", 2314000, 1036192929))
