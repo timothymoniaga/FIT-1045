@@ -1,0 +1,7 @@
+"city","city_ascii","lat","lng","country","iso2","iso3","admin_name","capital","population","id"
+"Sydney","Sydney","-33.8678","151.2100","Australia","AU","AUS","New South Wales","admin","4840600","1036074917"
+"Melbourne","Melbourne","-37.8142","144.9631","Australia","AU","AUS","Victoria","admin","4529500","1036533631"
+"Brisbane","Brisbane","-27.4678","153.0281","Australia","AU","AUS","Queensland","admin","2360241","1036192929"
+"Perth","Perth","-31.9559","115.8606","Australia","AU","AUS","Western Australia","admin","2141834","1036178956"
+"Adelaide","Adelaide","-34.9275","138.6000","Australia","AU","AUS","South Australia","admin","1295714","1036538171"
+"Canberra","Canberra","-35.2931","149.1269","Australia","AU","AUS","Australian Capital Territory","primary","381488","1036142029"
