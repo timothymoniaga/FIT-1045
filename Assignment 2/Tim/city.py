@@ -46,11 +46,12 @@ class City():
 
         self.city_id = city_id
 
-        self.id_to_cities[city_id] = self
+        City.id_to_cities[city_id] = self
 
-        # print(self.id_to_cities)
-
-        #TODO
+        if name in City.name_to_cities:
+            City.name_to_cities[name].append(self)
+        else:
+            City.name_to_cities[name] = [self]
 
     def distance(self, other_city: City) -> int:
         """
@@ -60,7 +61,10 @@ class City():
         :param other_city: a city to measure the distance to
         :return: the rounded-up distance in kilometers
         """
-        #TODO
+
+        distance_km = geopy.distance.great_circle(self.coordinates, other_city.coordinates).km
+        distance_rounded = math.ceil(distance_km)
+        return distance_rounded
 
     def __str__(self) -> str:
         """
@@ -69,7 +73,7 @@ class City():
 
         :return: a string representing the city.
         """
-        #TODO
+        return f"{self.name} ({self.city_id})"
 
     def get_table_data(self) -> list[str]:
         """
@@ -81,8 +85,8 @@ class City():
 
         :return: A list of data about the city.
         """
-        #TODO
-
+        ret_val = [self.name, str(self.coordinates), self.city_type, str(self.population), str(self.city_id)] 
+        return ret_val
 
 def get_city_by_id(city_id: int) -> City | None:
     """
@@ -91,10 +95,9 @@ def get_city_by_id(city_id: int) -> City | None:
     :param city_id: the ID of the city.
     :return: the city with that ID if one is known, None otherwise.
     """
-    test = ( City.id_to_cities.get(city_id))
+    
+    #print(City.id_to_cities)
     return City.id_to_cities.get(city_id)
-    #TODO
-
 
 def get_cities_by_name(city_name: str) -> list[City]:
     """
@@ -104,9 +107,14 @@ def get_cities_by_name(city_name: str) -> list[City]:
     :param city_name: the name of the city.
     :return: the list of cities known by this name. 
     """
-    #TODO
+    cities = []
 
-
+    for i in City.name_to_cities.values():
+        for city in i:
+            if city.name.lower() == city_name.lower():
+                cities.append(city)
+        
+    return cities
 
 def create_example_cities() -> None:
     """
@@ -118,22 +126,20 @@ def create_example_cities() -> None:
     City("Kuala Lumpur", (3.1478, 101.6953), "primary", 8639000, 1458988644)
     #an example of two cities with the same name
     City("Santiago", (-33.45, -70.6667), "primary", 7026000, 1152554349)
-    City("Santiago",	(19.45, -70.7), "admin", 1343423, 1214985348)
+    City("Santiago", (19.45, -70.7), "admin", 1343423, 1214985348)
     #an example of a city without a specific city type
     City("Baoding", (38.8671, 115.4845), "", 11860000, 1156256829)
-
 
 def test_example_cities() -> None:
     """
     Assuming the correct cities have been created, runs a small test.
     """
     melbourne = get_city_by_id(1036533631)
-    #sydney = get_cities_by_name("Sydney")[0]
-    # print(melbourne)
+    sydney = get_cities_by_name("Sydney")[0]
+    print(melbourne)
     print(f"Melbourne's name is {melbourne.name}")
     print(f"Melbourne's population is {melbourne.population}")
-    #print(f"The distance between Melbourne and Sydney is {melbourne.distance(sydney)} km")
-
+    print(f"The distance between Melbourne and Sydney is {melbourne.distance(sydney)} km")
 
 if __name__ == "__main__":
     create_example_cities()
