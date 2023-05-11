@@ -46,7 +46,7 @@ class City():
 
         self.city_id = city_id
 
-        self.id_to_cities[city_id] = self
+        City.id_to_cities[city_id] = self
 
         if name in City.name_to_cities:
             City.name_to_cities[name].append(self)
@@ -95,6 +95,8 @@ def get_city_by_id(city_id: int) -> City | None:
     :param city_id: the ID of the city.
     :return: the city with that ID if one is known, None otherwise.
     """
+    
+    #print(City.id_to_cities)
     return City.id_to_cities.get(city_id)
 
 def get_cities_by_name(city_name: str) -> list[City]:

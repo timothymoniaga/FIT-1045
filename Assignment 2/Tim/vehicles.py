@@ -37,18 +37,19 @@ class Vehicle(ABC):
 
         :param itinerary: The itinerary.
         :return: the travel time in hours (an integer),
-                 or math.inf if the travel is not possible.
+            or math.inf if the travel is not possible.
         """
-        total_time = 0
-        for i in range(len(itinerary.cities) - 1):
-            departure = itinerary.cities[i]
-            arrival = itinerary.cities[i + 1]
-            travel_time = self.compute_travel_time(departure, arrival)
-            # this needs fixing
-            if travel_time == math.inf:
-                return math.inf
-            total_time += travel_time
-        return total_time
+        if(itinerary is not None):
+            total_time = 0
+            for i in range(len(itinerary.cities) - 1):
+                departure = itinerary.cities[i]
+                arrival = itinerary.cities[i + 1]
+                travel_time = self.compute_travel_time(departure, arrival)
+                # this needs fixing
+                if travel_time == math.inf:
+                    return math.inf
+                total_time += travel_time
+            return total_time
 
     @abstractmethod
     def __str__(self) -> str:
@@ -175,7 +176,7 @@ class TeleportingTarteTrolley(Vehicle):
                  or math.inf if the travel is not possible.
         """
         distance = departure.distance(arrival)
-        if(distance < self.max_distance):
+        if(distance <= self.max_distance):
             return math.ceil(self.travel_time)
         else: 
             return math.inf

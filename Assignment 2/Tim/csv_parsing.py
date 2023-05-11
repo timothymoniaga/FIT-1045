@@ -27,14 +27,14 @@ def create_cities_countries_from_csv(path_to_csv: str) -> None:
             iso3 = row['iso3']
             city_type = row['capital']
             population = row['population']
-            city_id = row['id']
+            city_id = int(row['id'])
             location = (latitude, longitude)
 
             # Convert population to an integer
-            if population == '':
-                population = 0
-            else:
+            try:
                 population = int(population)
+            except ValueError:
+                population = 0
 
             # Create City and Country instances
             city = City(city_name, location, city_type, population, city_id)
