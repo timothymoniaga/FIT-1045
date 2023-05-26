@@ -12,16 +12,28 @@ def flatten_image(image: list[list[int]]) -> list[int]:
     
 def unflatten_image(flat_image: list[int]) -> list[list[int]]:
     """
-    Unflattens a 1D list into a 2D list.
+    This function unflattens a 1D list into a 2D list, representing an image.
         
-    :param flat_image: 1D list of integers representing a flattened image.
-    :return: 2D list of integers.
+    :param flat_image: A 1D list of integers representing a flattened image.
+    :return: A 2D list of integers representing the unflattened image.
     """
-    retVal = []
+    # Initializing an empty list to store the unflattened image
+    unflatten_image_return = []
+    
+    # Calculating the side length of the image based on the length of the flat image
     side_length = int(math.sqrt(len(flat_image)))
+    
+    # Iterating over each row index
     for i in range(side_length):
-        retVal.append(flat_image[i * side_length:(i + 1) * side_length])
-    return retVal
+        # Extracting a slice of the flat image corresponding to the current row
+        row = flat_image[i * side_length:(i + 1) * side_length]
+        
+        # Appending the row to the unflattened image list
+        unflatten_image_return.append(row)
+    
+    # Returning the unflattened image
+    return unflatten_image_return
+
 
 def check_adjacent_for_one(flat_image: list[int], flat_pixel: int) -> bool:
     """
